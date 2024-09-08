@@ -116,7 +116,7 @@ public class LoadTestSimulation extends Simulation {
 
             // Set up the scenario
             setUp(
-                    scn.injectOpen(rampUsers(10).during(5 * 60))
+                    scn.injectOpen(rampUsers(50).during(5 * 60))
             ).protocols(http.baseUrl("https://reqres.in")); // Set a default base URL if needed
 
         } catch (IOException e) {
