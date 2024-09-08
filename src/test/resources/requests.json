@@ -1,21 +1,26 @@
 [
   {
-    "feature": "RESREQ",
+    "feature": "Feature1",
     "requests": [
       {
         "method": "POST",
+        "baseUrl": "https://reqres.in",
         "endpoint": "/api/login",
         "headers": {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Authorization": "Bearer token123"
         },
         "body": {
           "email": "eve.holt@reqres.in",
           "password": "cityslicka"
         },
         "description": "Login request",
-        "expectedStatus": 200
-      },{
+        "expectedStatus": 200,
+        "requiresToken": false
+      },
+      {
         "method": "GET",
+        "baseUrl": "https://reqres.in",
         "endpoint": "/api/users",
         "headers": {
           "Content-Type": "application/json"
@@ -24,19 +29,23 @@
           "page": 2
         },
         "description": "Get list of users on page 2",
-        "expectedStatus": 200
+        "expectedStatus": 200,
+        "requiresToken": false
       },
       {
         "method": "GET",
+        "baseUrl": "https://reqres.in",
         "endpoint": "/api/users/2",
         "headers": {
           "Content-Type": "application/json"
         },
         "description": "Get details of user with ID 2",
-        "expectedStatus": 200
+        "expectedStatus": 200,
+        "requiresToken": false
       },
       {
         "method": "POST",
+        "baseUrl": "https://reqres.in",
         "endpoint": "/api/users",
         "headers": {
           "Content-Type": "application/json"
@@ -46,7 +55,8 @@
           "job": "leader"
         },
         "description": "Create a new user",
-        "expectedStatus": 201
+        "expectedStatus": 201,
+        "requiresToken": false
       }
     ]
   }

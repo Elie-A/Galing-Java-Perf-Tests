@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class APISimulation extends Simulation {
+public class StressTestSimulation extends Simulation {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     {
@@ -23,7 +23,7 @@ public class APISimulation extends Simulation {
             List<RequestModel> requestModels = JSONParser.parseJsonToRequests("requests.json");
 
             // Create a scenario builder
-            ScenarioBuilder scn = scenario("API Test Scenario");
+            ScenarioBuilder scn = scenario("Stress Test Scenario");
 
             // Execute login request if it is present in the request models
             RequestModel loginRequest = requestModels.stream()
@@ -116,7 +116,7 @@ public class APISimulation extends Simulation {
 
             // Set up the scenario
             setUp(
-                    scn.injectOpen(atOnceUsers(1))
+                    scn.injectOpen(rampUsers(100).during(10 * 60))
             ).protocols(http.baseUrl("https://reqres.in")); // Set a default base URL if needed
 
         } catch (IOException e) {
