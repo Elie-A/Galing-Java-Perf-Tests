@@ -15,27 +15,64 @@ import java.util.List;
 import java.util.Map;
 
 public class APISimulation extends Simulation {
-    // ObjectMapper instance for JSON serialization
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     {
         try {
+            // Parse the JSON file to get all request models
             List<RequestModel> requestModels = JSONParser.parseJsonToRequests("C:\\Users\\eliea\\Documents\\intellij-workspace\\Galing-Java-Perf-Tests\\src\\test\\resources\\requests.json");
 
-            HttpProtocolBuilder httpProtocol = http
-                    .baseUrl("https://reqres.in")
-                    .acceptHeader("application/json");
-
+            // Create a scenario builder
             ScenarioBuilder scn = scenario("API Test Scenario");
 
+            // Execute login request if it is present in the request models
+            RequestModel loginRequest = requestModels.stream()
+                    .filter(req -> req.getDescription().equalsIgnoreCase("Login request"))
+                    .findFirst()
+                    .orElse(null);
+
+            if (loginRequest != null) {
+                HttpRequestActionBuilder loginHttpRequest = http(loginRequest.getDescription())
+                        .post(loginRequest.getEndpoint())
+                        .headers(loginRequest.getHeaders())
+                        .body(StringBody(OBJECT_MAPPER.writeValueAsString(loginRequest.getBody())))
+                        .check(status().is(loginRequest.getExpectedStatus()))
+                        .check(jsonPath("$.token").saveAs("authToken"));
+
+                scn = scn.exec(loginHttpRequest)
+                        .exec(session -> {
+                            System.out.println("Token: " + session.getString("authToken"));
+                            return session;
+                        });
+            }
+
+            // Handle other requests dynamically
             for (RequestModel request : requestModels) {
+                if (loginRequest != null && request.getDescription().equalsIgnoreCase("Login request")) {
+                    // Skip login request if it's already executed
+                    continue;
+                }
+
                 HttpRequestActionBuilder httpRequest;
+                Map<String, String> headers = new HashMap<>(request.getHeaders());
+
+                // Replace Authorization header with the token from login if needed
+                if (request.isRequiresToken()) {
+                    scn = scn.exec(session -> {
+                        String token = session.getString("authToken");
+                        if (token != null) {
+                            headers.put("Authorization", "Bearer " + token);
+                        }
+                        return session;
+                    });
+                }
+
                 switch (request.getMethod().toUpperCase()) {
                     case "POST":
                         String postBody = request.getBody() != null ? OBJECT_MAPPER.writeValueAsString(request.getBody()) : null;
                         httpRequest = http(request.getDescription())
                                 .post(request.getEndpoint())
-                                .headers(request.getHeaders())
+                                .headers(headers)
                                 .body(postBody != null ? StringBody(postBody) : null)
                                 .check(status().is(request.getExpectedStatus()))
                                 .check(bodyString().saveAs("responseBody"));
@@ -44,7 +81,7 @@ public class APISimulation extends Simulation {
                         Map<String, Object> parameters = request.getParameters();
                         httpRequest = http(request.getDescription())
                                 .get(request.getEndpoint())
-                                .headers(request.getHeaders())
+                                .headers(headers)
                                 .queryParamMap(parameters != null ? parameters : new HashMap<>())
                                 .check(status().is(request.getExpectedStatus()))
                                 .check(bodyString().saveAs("responseBody"));
@@ -53,7 +90,7 @@ public class APISimulation extends Simulation {
                         String putBody = request.getBody() != null ? OBJECT_MAPPER.writeValueAsString(request.getBody()) : null;
                         httpRequest = http(request.getDescription())
                                 .put(request.getEndpoint())
-                                .headers(request.getHeaders())
+                                .headers(headers)
                                 .body(putBody != null ? StringBody(putBody) : null)
                                 .check(status().is(request.getExpectedStatus()))
                                 .check(bodyString().saveAs("responseBody"));
@@ -61,7 +98,7 @@ public class APISimulation extends Simulation {
                     case "DELETE":
                         httpRequest = http(request.getDescription())
                                 .delete(request.getEndpoint())
-                                .headers(request.getHeaders())
+                                .headers(headers)
                                 .check(status().is(request.getExpectedStatus()))
                                 .check(bodyString().saveAs("responseBody"));
                         break;
@@ -77,9 +114,10 @@ public class APISimulation extends Simulation {
                         .pause(1); // Pause between requests
             }
 
+            // Set up the scenario
             setUp(
                     scn.injectOpen(atOnceUsers(1))
-            ).protocols(httpProtocol);
+            ).protocols(http.baseUrl("https://reqres.in")); // Set a default base URL if needed
 
         } catch (IOException e) {
             e.printStackTrace();
