@@ -20,7 +20,7 @@ public class SoakTestSimulation extends Simulation {
     {
         try {
             // Parse the JSON file to get all request models
-            List<RequestModel> requestModels = JSONParser.parseJsonToRequests("C:\\Users\\eliea\\Documents\\intellij-workspace\\Galing-Java-Perf-Tests\\src\\test\\resources\\requests.json");
+            List<RequestModel> requestModels = JSONParser.parseJsonToRequests("requests.json");
 
             // Create a scenario builder
             ScenarioBuilder scn = scenario("Soak Test Scenario");
@@ -121,6 +121,8 @@ public class SoakTestSimulation extends Simulation {
 
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }
