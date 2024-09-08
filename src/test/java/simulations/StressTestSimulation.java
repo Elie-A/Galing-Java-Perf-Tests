@@ -116,7 +116,7 @@ public class StressTestSimulation extends Simulation {
 
             // Set up the scenario
             setUp(
-                    scn.injectOpen(rampUsers(100).during(10 * 60))
+                    scn.injectOpen(rampUsers(200).during(10 * 60))  // Ramp up to 200 users over 10 minutes
             ).protocols(http.baseUrl("https://reqres.in")); // Set a default base URL if needed
 
         } catch (IOException e) {

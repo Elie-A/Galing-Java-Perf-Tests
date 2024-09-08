@@ -116,7 +116,7 @@ public class SpikeTestSimulation extends Simulation {
 
             // Set up the scenario
             setUp(
-                    scn.injectOpen(atOnceUsers(50))
+                    scn.injectOpen(atOnceUsers(100))  // Simulate a sudden spike of 100 users at once
             ).protocols(http.baseUrl("https://reqres.in")); // Set a default base URL if needed
 
         } catch (IOException e) {

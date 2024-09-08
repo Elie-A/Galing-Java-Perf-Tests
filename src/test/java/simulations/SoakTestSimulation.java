@@ -116,7 +116,7 @@ public class SoakTestSimulation extends Simulation {
 
             // Set up the scenario
             setUp(
-                    scn.injectOpen(rampUsers(5).during(60 * 60))
+                    scn.injectOpen(rampUsers(50).during(2 * 60 * 60))  // Simulate a constant load of 50 users for 2 hours
             ).protocols(http.baseUrl("https://reqres.in")); // Set a default base URL if needed
 
         } catch (IOException e) {
