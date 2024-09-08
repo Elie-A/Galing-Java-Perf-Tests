@@ -1,0 +1,53 @@
+[
+  {
+    "feature": "RESREQ",
+    "requests": [
+      {
+        "method": "POST",
+        "endpoint": "/api/login",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "email": "eve.holt@reqres.in",
+          "password": "cityslicka"
+        },
+        "description": "Login request",
+        "expectedStatus": 200
+      },{
+        "method": "GET",
+        "endpoint": "/api/users",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "parameters": {
+          "page": 2
+        },
+        "description": "Get list of users on page 2",
+        "expectedStatus": 200
+      },
+      {
+        "method": "GET",
+        "endpoint": "/api/users/2",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "description": "Get details of user with ID 2",
+        "expectedStatus": 200
+      },
+      {
+        "method": "POST",
+        "endpoint": "/api/users",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "name": "morpheus",
+          "job": "leader"
+        },
+        "description": "Create a new user",
+        "expectedStatus": 201
+      }
+    ]
+  }
+]
